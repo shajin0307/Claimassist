@@ -213,7 +213,7 @@ These artifacts are loaded for inference.
 
 ---
 
-## 7. Project Structure
+## 7.  Project Structure
 
 ```text
 final_anomaly_system/
