@@ -70,7 +70,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend_dist"
+FRONTEND_DIR = Path(__file__).resolve().parents[1] / "frontend_dist"
 FRONTEND_INDEX = FRONTEND_DIR / "index.html"
 
 # Enable CORS for frontend integration (supporting local dev and cloud deployment domains)
