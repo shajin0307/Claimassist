@@ -1,4 +1,4 @@
-# Claims & Authorization Data-Quality Anomaly Monitor
+# Claims & Authorization Data-Quality Anomaly Monitor:
 
 An AI-powered monitoring system for detecting anomalies and data-quality issues in healthcare authorization data. The system combines engineered authorization features, an Autoencoder for representation learning, and Logistic Regression for anomaly classification.
 
