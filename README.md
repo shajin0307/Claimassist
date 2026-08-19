@@ -29,25 +29,36 @@ The finalized model is:
 ### Pipeline
                                                                               
 ```text
-Authorization Data
-        ↓
-Feature Engineering
-        ↓
-Autoencoder
-        ↓
+ Authorization Data
+      ↓
+Train / Validation / Test Split
+      ↓
+StandardScaler
+      ↓
+Dense Autoencoder
+      ↓
 8 Latent Features
-        +
-Reconstruction Error
-        ↓
-9 ML Features
-        ↓
-Balanced Logistic Regression
-        ↓
+      +
+1 Reconstruction Error (MSE)
+      ↓
+   9 Features
+      ↓
+Logistic Regression
+      ↓
 Anomaly Probability
-        ↓
-Locked Threshold = 0.81
-        ↓
-NORMAL / ANOMALY
+      ↓
+Validation Threshold Selection
+      ↓
+Normal / Anomaly
+      ↓
+Untouched Test Data
+      ↓
+Final Evaluation
+      ↓
+Accuracy
+Precision
+Recall
+F1-score
 ```
 
 ### Autoencoder
@@ -68,7 +79,7 @@ Architecture:
 
 The Autoencoder produces:
 
-* 8 latent representation features
+* 8 dimension latent representation
 * 1 reconstruction-error feature
 
 These 9 features are passed to Logistic Regression.
