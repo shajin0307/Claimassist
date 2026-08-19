@@ -2,7 +2,7 @@
 
 An AI-powered monitoring system for detecting anomalies and data-quality issues in healthcare authorization data. The system combines engineered authorization features, an Autoencoder for representation learning, and Logistic Regression for anomaly classification.
 
-## 1. Project Overview 
+## 1. Project Overview  
 
 Bad claims and authorization data can create downstream problems in payer analytics, care management, quality measurement, and operational workflows.
 
