@@ -3,12 +3,14 @@ import random
 import asyncio
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Dict, Any, Optional
 
 from fastapi import (
     FastAPI, HTTPException, Depends, UploadFile, File, WebSocket, WebSocketDisconnect, status, Query
 )
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.schemas import (
@@ -68,6 +70,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend_dist"
+FRONTEND_INDEX = FRONTEND_DIR / "index.html"
+
 # Enable CORS for frontend integration (supporting local dev and cloud deployment domains)
 app.add_middleware(
     CORSMiddleware,
@@ -88,7 +93,9 @@ app.add_middleware(
 
 @app.get("/", tags=["Status"])
 def root_status():
-    """Root entry point confirming backend is running successfully."""
+    """Serve the bundled React application, with a backend-only fallback."""
+    if FRONTEND_INDEX.is_file():
+        return FileResponse(FRONTEND_INDEX)
     return {
         "status": "online",
         "message": "Final Anomaly Detection System Backend is running successfully.",
@@ -671,3 +678,21 @@ async def websocket_live_endpoint(websocket: WebSocket):
                 await websocket.send_text("pong")
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket)
+
+
+@app.get("/{frontend_path:path}", include_in_schema=False)
+def serve_frontend(frontend_path: str):
+    """Serve Vite assets and fall back to index.html for frontend routes."""
+    if not FRONTEND_INDEX.is_file():
+        raise HTTPException(status_code=404, detail="Frontend build is not available.")
+
+    requested_path = (FRONTEND_DIR / frontend_path).resolve()
+    frontend_root = FRONTEND_DIR.resolve()
+
+    if frontend_root not in requested_path.parents and requested_path != frontend_root:
+        raise HTTPException(status_code=404, detail="Not found.")
+
+    if requested_path.is_file():
+        return FileResponse(requested_path)
+
+    return FileResponse(FRONTEND_INDEX)

@@ -1,0 +1,70 @@
+name: Build and Deploy Claimassist
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: claimassist-production
+  cancel-in-progress: true
+
+env:
+  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+  AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+  AZURE_ACR_NAME: ${{ secrets.AZURE_ACR_NAME }}
+  IMAGE_NAME: claimassist/web
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure with OpenID Connect
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name "$AZURE_ACR_NAME"
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg VITE_API_BASE_URL=/api \
+            --tag "$AZURE_ACR_NAME.azurecr.io/$IMAGE_NAME:${GITHUB_SHA}" \
+            .
+
+      - name: Push image to Azure Container Registry
+        run: |
+          docker push "$AZURE_ACR_NAME.azurecr.io/$IMAGE_NAME:${GITHUB_SHA}"
+
+      - name: Configure App Service container
+        run: |
+          az webapp config container set \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_WEBAPP_NAME" \
+            --container-image-name "$AZURE_ACR_NAME.azurecr.io/$IMAGE_NAME:${GITHUB_SHA}" \
+            --docker-registry-server-url "https://$AZURE_ACR_NAME.azurecr.io"
+
+      - name: Restart App Service
+        run: |
+          az webapp restart \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_WEBAPP_NAME"
+
+      - name: Verify deployment health
+        run: |
+          curl --fail --silent --show-error --location \
+            --retry 12 --retry-delay 10 --retry-connrefused \
+            "https://$AZURE_WEBAPP_NAME.azurewebsites.net/api/health"
