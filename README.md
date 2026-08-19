@@ -14,20 +14,20 @@ This project provides a machine-learning-based monitoring prototype that:
 * Provides interpretable reasons for detected anomalies
 * Supports real-time authorization analysis
 * Supports batch/CSV analysis
-* Provides a foundation for SLA and operational-risk monitoring
+* Provides a foundation for SLA and operational-risk monitoring    
 
-The final ML model is deployed as an inference-only component. Training and experimentation are performed separately from the application.
+The final ML model is deployed as an inference-only component. Training and experimentation are performed separately from the application.   
 
 ---
 
 ## 2. Final Machine Learning Model
 
 The finalized model is:
-
+   
 **Autoencoder + Logistic Regression**
 
 ### Pipeline
-
+                                                                              
 ```text
 Authorization Data
         ↓
