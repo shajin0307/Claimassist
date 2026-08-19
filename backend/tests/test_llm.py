@@ -4,17 +4,17 @@ from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.database import Base, engine, SessionLocal, AuthorizationRecord, save_authorization_record
+from app.database import Base, engine, SessionLocal, AuthorizationRecord, save_authorization_record, init_db
 from app.llm_service import LLMExplanationService
 from app.llm_prompts import SYSTEM_PROMPT, build_evidence_user_prompt
 
-# Ensure PostgreSQL tables exist
-Base.metadata.create_all(bind=engine)
+# Ensure tables exist
+init_db()
 
 
 @pytest.fixture(autouse=True)
 def cleanup_llm_test_records():
-    """Cleanup test records after each test run in PostgreSQL."""
+    """Cleanup test records after each test run."""
     yield
     try:
         session = SessionLocal()
@@ -33,10 +33,15 @@ client = TestClient(app)
 
 def test_llm_config_and_prompt_construction():
     """Test LLM service initialization and evidence prompt construction."""
-    service = LLMExplanationService()
-    assert service.model == "llama3.2:3b"
-    assert "localhost:11434" in service.base_url
-    assert service.timeout == 30
+    ollama_service = LLMExplanationService(provider="ollama", base_url="http://localhost:11434", model="llama3.2:3b")
+    assert ollama_service.model == "llama3.2:3b"
+    assert "localhost:11434" in ollama_service.base_url
+    assert ollama_service.timeout == 30
+
+    groq_service = LLMExplanationService(provider="groq", api_key="test_key", model="openai/gpt-oss-120b")
+    assert groq_service.provider == "groq"
+    assert groq_service.model == "openai/gpt-oss-120b"
+    assert "api.groq.com" in groq_service.base_url
 
     # Ensure system prompt contains strict non-override and non-clinical rules
     assert "do not make clinical diagnoses" in SYSTEM_PROMPT.lower()
