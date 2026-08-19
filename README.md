@@ -33,10 +33,7 @@ Authorization Data
         ↓
 Feature Engineering
         ↓
-25 Features
-        ↓
 Autoencoder
-25 → 16 → 8 → 16 → 25
         ↓
 8 Latent Features
         +
