@@ -54,11 +54,6 @@ Normal / Anomaly
 Untouched Test Data
       ↓
 Final Evaluation
-      ↓
-Accuracy
-Precision
-Recall
-F1-score
 ```
 
 ### Autoencoder
