@@ -62,6 +62,12 @@ jobs:
 
       - name: Verify deployment health
         run: |
+          APP_HOST=$(az webapp show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_WEBAPP_NAME" \
+            --query defaultHostName \
+            --output tsv)
+          echo "Checking https://$APP_HOST/api/health"
           curl --fail --silent --show-error --location \
             --retry 12 --retry-delay 10 --retry-connrefused \
-            "https://$AZURE_WEBAPP_NAME.azurewebsites.net/api/health"
+            "https://$APP_HOST/api/health"
