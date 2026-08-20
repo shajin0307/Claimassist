@@ -546,7 +546,36 @@ Do:
 ✓ Log inference latency
 ✓ Provide explanations separately from prediction
 ```
+## 16.1 Quick End-to-End Workflow
 
+The complete application workflow is:
+
+```text
+Authorization Input
+        ↓
+Input Validation
+        ↓
+25 Feature Generation
+        ↓
+Missing-Value Imputation
+        ↓
+Feature Scaling
+        ↓
+Autoencoder Representation
+        ↓
+8 Latent Features + Reconstruction Error
+        ↓
+Logistic Regression
+        ↓
+Anomaly Probability
+        ↓
+Threshold = 0.81
+        ↓
+Normal / Anomaly
+        ↓
+Risk Level + Explanation
+        ↓
+Dashboard / Prediction History
 ---
 
 ## 17. Limitations
